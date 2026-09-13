@@ -28,8 +28,15 @@ export default function Dashboard() {
     { id: 3, name: "Thank you email", description: "Send a thank you email to invitee after event", active: true },
   ]);
 
-  const username = "danyloviier";
+  const [integrations, setIntegrations] = useState<{ [key: string]: boolean }>({
+    "Google Calendar": false,
+    "Zoom": false,
+    "Stripe": false,
+    "Salesforce": false
+  });
 
+  const [profile, setProfile] = useState({ name: "Danila Vier", username: "danyloviier" });
+  const [saveSuccess, setSaveSuccess] = useState(false);
   const handleCreateEvent = (e: React.FormEvent) => {
     e.preventDefault();
     const id = newEvent.title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
@@ -118,9 +125,9 @@ export default function Dashboard() {
                     D
                   </div>
                   <div>
-                    <h2 style={{ fontSize: "1.5rem", margin: 0 }}>Danila Vier</h2>
-                    <Link href={`/${username}`} style={{ color: "var(--text-muted)", textDecoration: "none", fontSize: "0.9rem" }}>
-                      calendly.clone/{username}
+                    <h2 style={{ fontSize: "1.5rem", margin: 0 }}>{profile.name}</h2>
+                    <Link href={`/${profile.username}`} style={{ color: "var(--text-muted)", textDecoration: "none", fontSize: "0.9rem" }}>
+                      calendly.clone/{profile.username}
                     </Link>
                   </div>
                 </div>
@@ -177,7 +184,7 @@ export default function Dashboard() {
                     <button className="btn btn-outline" style={{ padding: "0.5rem 1rem", fontSize: "0.85rem", border: "none", background: "var(--background)" }}>
                       🔗 Copy link
                     </button>
-                    <Link href={`/${username}/${event.id}`} className="btn btn-outline" style={{ padding: "0.5rem 1rem", fontSize: "0.85rem", border: "none", background: "var(--background)" }}>
+                    <Link href={`/${profile.username}/${event.id}`} className="btn btn-outline" style={{ padding: "0.5rem 1rem", fontSize: "0.85rem", border: "none", background: "var(--background)" }}>
                       👁️ View Page
                     </Link>
                   </div>
@@ -275,11 +282,17 @@ export default function Dashboard() {
             <h2 style={{ fontSize: "1.5rem", margin: "0 0 1rem 0" }}>Integrations</h2>
             <p style={{ color: "var(--text-muted)", marginBottom: "2rem" }}>Connect CalendlyClone to your favorite tools.</p>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "1.5rem" }}>
-              {["Google Calendar", "Zoom", "Stripe", "Salesforce"].map(tool => (
+              {Object.keys(integrations).map(tool => (
                 <div key={tool} style={{ padding: "1.5rem", border: "1px solid var(--border)", borderRadius: "var(--radius)", background: "var(--background)", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: "1rem" }}>
                   <div style={{ width: "50px", height: "50px", background: "var(--surface)", borderRadius: "var(--radius)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem" }}>🔌</div>
                   <h4 style={{ margin: 0 }}>{tool}</h4>
-                  <button className="btn btn-outline" style={{ width: "100%", background: "var(--surface)" }}>Connect</button>
+                  <button 
+                    className="btn btn-outline" 
+                    onClick={() => setIntegrations(prev => ({ ...prev, [tool]: !prev[tool] }))}
+                    style={{ width: "100%", background: integrations[tool] ? "var(--primary)" : "var(--surface)", color: integrations[tool] ? "white" : "var(--foreground)", borderColor: integrations[tool] ? "var(--primary)" : "var(--border)" }}
+                  >
+                    {integrations[tool] ? "Connected" : "Connect"}
+                  </button>
                 </div>
               ))}
             </div>
@@ -294,10 +307,13 @@ export default function Dashboard() {
                <div style={{ padding: "1.5rem", border: "1px solid var(--border)", borderRadius: "var(--radius)", background: "var(--background)" }}>
                  <h4 style={{ margin: "0 0 1rem 0", fontSize: "1.1rem" }}>Profile Information</h4>
                  <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
-                   <input type="text" value="Danila Vier" readOnly style={{ flex: 1, padding: "0.75rem", borderRadius: "var(--radius)", border: "1px solid var(--border)", background: "var(--surface)", color: "var(--foreground)" }} />
-                   <input type="text" value="danyloviier" readOnly style={{ flex: 1, padding: "0.75rem", borderRadius: "var(--radius)", border: "1px solid var(--border)", background: "var(--surface)", color: "var(--foreground)" }} />
+                   <input type="text" value={profile.name} onChange={(e) => { setProfile({...profile, name: e.target.value}); setSaveSuccess(false); }} style={{ flex: 1, padding: "0.75rem", borderRadius: "var(--radius)", border: "1px solid var(--border)", background: "var(--surface)", color: "var(--foreground)" }} />
+                   <input type="text" value={profile.username} onChange={(e) => { setProfile({...profile, username: e.target.value}); setSaveSuccess(false); }} style={{ flex: 1, padding: "0.75rem", borderRadius: "var(--radius)", border: "1px solid var(--border)", background: "var(--surface)", color: "var(--foreground)" }} />
                  </div>
-                 <button className="btn btn-primary">Save Changes</button>
+                 <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                   <button className="btn btn-primary" onClick={() => setSaveSuccess(true)}>Save Changes</button>
+                   {saveSuccess && <span style={{ color: "#10b981", fontSize: "0.9rem" }}>Changes saved successfully!</span>}
+                 </div>
                </div>
             </div>
           </div>
