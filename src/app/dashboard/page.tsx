@@ -13,6 +13,8 @@ export default function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newEvent, setNewEvent] = useState({ title: "", duration: "30", type: "1-on-1" });
 
+  const username = "danyloviier";
+
   const handleCreateEvent = (e: React.FormEvent) => {
     e.preventDefault();
     const id = newEvent.title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
@@ -31,7 +33,11 @@ export default function Dashboard() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
         <div>
           <h2 className="page-title">My Link</h2>
-          <p className="page-subtitle">calendly.com/danilavier</p>
+          <p className="page-subtitle">
+            <Link href={`/${username}`} style={{ color: "var(--primary)", textDecoration: "none" }}>
+              calendly.clone/{username}
+            </Link>
+          </p>
         </div>
         <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>+ New Event Type</button>
       </div>
@@ -48,8 +54,8 @@ export default function Dashboard() {
               <button className="btn btn-outline" style={{ padding: "0.5rem 1rem", fontSize: "0.85rem" }}>
                 Copy link
               </button>
-              <Link href={`/booking/${event.id}`} className="btn btn-primary" style={{ padding: "0.5rem 1rem", fontSize: "0.85rem" }}>
-                Book Now
+              <Link href={`/${username}/${event.id}`} className="btn btn-primary" style={{ padding: "0.5rem 1rem", fontSize: "0.85rem" }}>
+                View Page
               </Link>
             </div>
           </div>

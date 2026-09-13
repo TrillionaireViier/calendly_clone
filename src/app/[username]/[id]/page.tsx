@@ -8,6 +8,7 @@ export default function BookingPage() {
   const params = useParams();
   const router = useRouter();
   const eventId = params.id as string;
+  const username = params.username as string;
   const [selectedDate, setSelectedDate] = useState<number | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
@@ -45,6 +46,7 @@ export default function BookingPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             eventId,
+            username,
             title: eventDetails.title,
             date: `${year}-${month + 1}-${selectedDate}`,
             time: selectedTime,
@@ -54,18 +56,18 @@ export default function BookingPage() {
         console.error("Failed to notify admin", err);
       }
       
-      router.push(`/booking/${eventId}/confirm`);
+      router.push(`/${username}/${eventId}/confirm`);
     }
   };
 
   return (
     <div className="booking-container">
       <div className="booking-sidebar">
-        <Link href="/" style={{ color: "var(--text-muted)", fontSize: "0.9rem", display: "inline-block", marginBottom: "2rem" }}>
+        <Link href={`/${username}`} style={{ color: "var(--text-muted)", fontSize: "0.9rem", display: "inline-block", marginBottom: "2rem" }}>
           ← Back
         </Link>
         <h4 style={{ color: "var(--text-muted)", fontWeight: 600, fontSize: "0.9rem", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "0.5rem" }}>
-          Danila Vier
+          {username}
         </h4>
         <h1 className="page-title" style={{ fontSize: "1.75rem" }}>{eventDetails.title}</h1>
         <div style={{ color: "var(--text-muted)", marginTop: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
