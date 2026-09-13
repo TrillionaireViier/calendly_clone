@@ -62,10 +62,52 @@ export default function Dashboard() {
     setSaveSuccess(true);
   };
 
-  const toggleIntegration = (tool: string) => {
-    const next = { ...integrations, [tool]: !integrations[tool] };
-    setIntegrations(next);
-    localStorage.setItem('calendly_integrations', JSON.stringify(next));
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const connectedProvider = params.get('connected');
+    const error = params.get('error');
+
+    if (error) {
+      alert(`Integration failed: ${error}`);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    if (connectedProvider) {
+      const providerToTool: { [key: string]: string } = {
+        "google": "Google Calendar",
+        "zoom": "Zoom",
+        "stripe": "Stripe",
+        "salesforce": "Salesforce"
+      };
+      const toolName = providerToTool[connectedProvider];
+      if (toolName) {
+        setIntegrations(prev => {
+          const next = { ...prev, [toolName]: true };
+          localStorage.setItem('calendly_integrations', JSON.stringify(next));
+          return next;
+        });
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+  }, []);
+
+  const handleIntegrationClick = (tool: string) => {
+    if (integrations[tool]) {
+      const next = { ...integrations, [tool]: false };
+      setIntegrations(next);
+      localStorage.setItem('calendly_integrations', JSON.stringify(next));
+    } else {
+      const toolToProvider: { [key: string]: string } = {
+        "Google Calendar": "google",
+        "Zoom": "zoom",
+        "Stripe": "stripe",
+        "Salesforce": "salesforce"
+      };
+      const provider = toolToProvider[tool];
+      if (provider) {
+        window.location.href = `/api/integrations/${provider}`;
+      }
+    }
   };
   const handleCreateEvent = (e: React.FormEvent) => {
     e.preventDefault();
@@ -318,7 +360,7 @@ export default function Dashboard() {
                   <h4 style={{ margin: 0 }}>{tool}</h4>
                   <button 
                     className="btn btn-outline" 
-                    onClick={() => toggleIntegration(tool)}
+                    onClick={() => handleIntegrationClick(tool)}
                     style={{ width: "100%", background: integrations[tool] ? "var(--primary)" : "var(--surface)", color: integrations[tool] ? "white" : "var(--foreground)", borderColor: integrations[tool] ? "var(--primary)" : "var(--border)" }}
                   >
                     {integrations[tool] ? "Connected" : "Connect"}
