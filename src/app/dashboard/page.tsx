@@ -16,6 +16,9 @@ export default function Dashboard() {
   const [isWorkflowModalOpen, setIsWorkflowModalOpen] = useState(false);
   const [editingWorkflowId, setEditingWorkflowId] = useState<number | null>(null);
   const [newWorkflow, setNewWorkflow] = useState({ name: "", description: "", active: true });
+  
+  const [sidebarTab, setSidebarTab] = useState("home");
+  
   const [activeTab, setActiveTab] = useState("event_types");
   const [searchQuery, setSearchQuery] = useState("");
   
@@ -74,30 +77,56 @@ export default function Dashboard() {
     <div style={{ display: "flex", gap: "2rem", minHeight: "70vh" }}>
       {/* Sidebar Navigation */}
       <aside style={{ width: "250px", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-        <button className="btn btn-outline" style={{ textAlign: "left", padding: "1rem", border: "none", background: "var(--surface)", fontWeight: 600 }}>🏠 Home</button>
-        <button className="btn btn-outline" style={{ textAlign: "left", padding: "1rem", border: "none", color: "var(--text-muted)" }}>📅 Availability</button>
-        <button className="btn btn-outline" style={{ textAlign: "left", padding: "1rem", border: "none", color: "var(--text-muted)" }}>🔗 Integrations</button>
-        <button className="btn btn-outline" style={{ textAlign: "left", padding: "1rem", border: "none", color: "var(--text-muted)" }}>⚙️ Help & Settings</button>
+        <button 
+          className="btn btn-outline" 
+          onClick={() => setSidebarTab("home")}
+          style={{ textAlign: "left", padding: "1rem", border: "none", background: sidebarTab === "home" ? "var(--surface)" : "transparent", color: sidebarTab === "home" ? "var(--foreground)" : "var(--text-muted)", fontWeight: sidebarTab === "home" ? 600 : 400, cursor: "pointer" }}
+        >
+          🏠 Home
+        </button>
+        <button 
+          className="btn btn-outline" 
+          onClick={() => setSidebarTab("availability")}
+          style={{ textAlign: "left", padding: "1rem", border: "none", background: sidebarTab === "availability" ? "var(--surface)" : "transparent", color: sidebarTab === "availability" ? "var(--foreground)" : "var(--text-muted)", fontWeight: sidebarTab === "availability" ? 600 : 400, cursor: "pointer" }}
+        >
+          📅 Availability
+        </button>
+        <button 
+          className="btn btn-outline" 
+          onClick={() => setSidebarTab("integrations")}
+          style={{ textAlign: "left", padding: "1rem", border: "none", background: sidebarTab === "integrations" ? "var(--surface)" : "transparent", color: sidebarTab === "integrations" ? "var(--foreground)" : "var(--text-muted)", fontWeight: sidebarTab === "integrations" ? 600 : 400, cursor: "pointer" }}
+        >
+          🔗 Integrations
+        </button>
+        <button 
+          className="btn btn-outline" 
+          onClick={() => setSidebarTab("settings")}
+          style={{ textAlign: "left", padding: "1rem", border: "none", background: sidebarTab === "settings" ? "var(--surface)" : "transparent", color: sidebarTab === "settings" ? "var(--foreground)" : "var(--text-muted)", fontWeight: sidebarTab === "settings" ? 600 : 400, cursor: "pointer" }}
+        >
+          ⚙️ Help & Settings
+        </button>
       </aside>
 
       {/* Main Dashboard Content */}
       <main style={{ flex: 1 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "2rem" }}>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1rem" }}>
-              <div style={{ width: "60px", height: "60px", borderRadius: "50%", background: "var(--primary)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem", fontWeight: "bold" }}>
-                D
-              </div>
+        {sidebarTab === "home" && (
+          <>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "2rem" }}>
               <div>
-                <h2 style={{ fontSize: "1.5rem", margin: 0 }}>Danila Vier</h2>
-                <Link href={`/${username}`} style={{ color: "var(--text-muted)", textDecoration: "none", fontSize: "0.9rem" }}>
-                  calendly.clone/{username}
-                </Link>
+                <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1rem" }}>
+                  <div style={{ width: "60px", height: "60px", borderRadius: "50%", background: "var(--primary)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem", fontWeight: "bold" }}>
+                    D
+                  </div>
+                  <div>
+                    <h2 style={{ fontSize: "1.5rem", margin: 0 }}>Danila Vier</h2>
+                    <Link href={`/${username}`} style={{ color: "var(--text-muted)", textDecoration: "none", fontSize: "0.9rem" }}>
+                      calendly.clone/{username}
+                    </Link>
+                  </div>
+                </div>
               </div>
+              <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>+ New Event Type</button>
             </div>
-          </div>
-          <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>+ New Event Type</button>
-        </div>
 
         {/* Tabs */}
         <div style={{ display: "flex", gap: "2rem", borderBottom: "1px solid var(--border)", marginBottom: "2rem" }}>
@@ -212,6 +241,64 @@ export default function Dashboard() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+          </>
+        )}
+
+        {sidebarTab === "availability" && (
+          <div style={{ padding: "2rem", background: "var(--surface)", borderRadius: "var(--radius)", border: "1px solid var(--border)" }}>
+            <h2 style={{ fontSize: "1.5rem", margin: "0 0 1rem 0" }}>Availability</h2>
+            <p style={{ color: "var(--text-muted)", marginBottom: "2rem" }}>Configure your default working hours and schedules.</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1.5rem", border: "1px solid var(--border)", borderRadius: "var(--radius)", background: "var(--background)" }}>
+                 <div>
+                   <h4 style={{ margin: "0 0 0.5rem 0", fontSize: "1.1rem" }}>Working Hours</h4>
+                   <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "0.9rem" }}>Default schedule: Mon-Fri, 9:00 AM - 5:00 PM</p>
+                 </div>
+                 <button className="btn btn-outline" style={{ background: "var(--surface)" }}>Edit Schedule</button>
+               </div>
+               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1.5rem", border: "1px solid var(--border)", borderRadius: "var(--radius)", background: "var(--background)" }}>
+                 <div>
+                   <h4 style={{ margin: "0 0 0.5rem 0", fontSize: "1.1rem" }}>Holidays & Overrides</h4>
+                   <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "0.9rem" }}>Add specific dates when you are unavailable.</p>
+                 </div>
+                 <button className="btn btn-outline" style={{ background: "var(--surface)" }}>Add Override</button>
+               </div>
+            </div>
+          </div>
+        )}
+
+        {sidebarTab === "integrations" && (
+          <div style={{ padding: "2rem", background: "var(--surface)", borderRadius: "var(--radius)", border: "1px solid var(--border)" }}>
+            <h2 style={{ fontSize: "1.5rem", margin: "0 0 1rem 0" }}>Integrations</h2>
+            <p style={{ color: "var(--text-muted)", marginBottom: "2rem" }}>Connect CalendlyClone to your favorite tools.</p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "1.5rem" }}>
+              {["Google Calendar", "Zoom", "Stripe", "Salesforce"].map(tool => (
+                <div key={tool} style={{ padding: "1.5rem", border: "1px solid var(--border)", borderRadius: "var(--radius)", background: "var(--background)", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: "1rem" }}>
+                  <div style={{ width: "50px", height: "50px", background: "var(--surface)", borderRadius: "var(--radius)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem" }}>🔌</div>
+                  <h4 style={{ margin: 0 }}>{tool}</h4>
+                  <button className="btn btn-outline" style={{ width: "100%", background: "var(--surface)" }}>Connect</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {sidebarTab === "settings" && (
+          <div style={{ padding: "2rem", background: "var(--surface)", borderRadius: "var(--radius)", border: "1px solid var(--border)" }}>
+            <h2 style={{ fontSize: "1.5rem", margin: "0 0 1rem 0" }}>Help & Settings</h2>
+            <p style={{ color: "var(--text-muted)", marginBottom: "2rem" }}>Manage your account and preferences.</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+               <div style={{ padding: "1.5rem", border: "1px solid var(--border)", borderRadius: "var(--radius)", background: "var(--background)" }}>
+                 <h4 style={{ margin: "0 0 1rem 0", fontSize: "1.1rem" }}>Profile Information</h4>
+                 <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
+                   <input type="text" value="Danila Vier" readOnly style={{ flex: 1, padding: "0.75rem", borderRadius: "var(--radius)", border: "1px solid var(--border)", background: "var(--surface)", color: "var(--foreground)" }} />
+                   <input type="text" value="danyloviier" readOnly style={{ flex: 1, padding: "0.75rem", borderRadius: "var(--radius)", border: "1px solid var(--border)", background: "var(--surface)", color: "var(--foreground)" }} />
+                 </div>
+                 <button className="btn btn-primary">Save Changes</button>
+               </div>
             </div>
           </div>
         )}
