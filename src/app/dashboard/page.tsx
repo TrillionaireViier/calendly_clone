@@ -12,8 +12,18 @@ export default function Dashboard() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newEvent, setNewEvent] = useState({ title: "", duration: "30", type: "1-on-1" });
+  
+  const [isWorkflowModalOpen, setIsWorkflowModalOpen] = useState(false);
+  const [editingWorkflowId, setEditingWorkflowId] = useState<number | null>(null);
+  const [newWorkflow, setNewWorkflow] = useState({ name: "", description: "", active: true });
   const [activeTab, setActiveTab] = useState("event_types");
   const [searchQuery, setSearchQuery] = useState("");
+  
+  const [workflows, setWorkflows] = useState([
+    { id: 1, name: "Email reminder to invitee", description: "Send an email to invitee 24 hours before event", active: true },
+    { id: 2, name: "Text reminder to host", description: "Send a text to host 1 hour before event", active: false },
+    { id: 3, name: "Thank you email", description: "Send a thank you email to invitee after event", active: true },
+  ]);
 
   const username = "danyloviier";
 
@@ -28,6 +38,34 @@ export default function Dashboard() {
     }]);
     setIsModalOpen(false);
     setNewEvent({ title: "", duration: "30", type: "1-on-1" });
+  };
+
+  const handleWorkflowSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingWorkflowId !== null) {
+      setWorkflows(workflows.map(w => w.id === editingWorkflowId ? { ...w, ...newWorkflow } : w));
+    } else {
+      const newId = workflows.length > 0 ? Math.max(...workflows.map(w => w.id)) + 1 : 1;
+      setWorkflows([...workflows, { id: newId, ...newWorkflow }]);
+    }
+    setIsWorkflowModalOpen(false);
+    setNewWorkflow({ name: "", description: "", active: true });
+    setEditingWorkflowId(null);
+  };
+
+  const openEditWorkflow = (wf: { id: number; name: string; description: string; active: boolean }) => {
+    setEditingWorkflowId(wf.id);
+    setNewWorkflow({ name: wf.name, description: wf.description, active: wf.active });
+    setIsWorkflowModalOpen(true);
+  };
+
+  const handleDeleteWorkflow = () => {
+    if (editingWorkflowId !== null) {
+      setWorkflows(workflows.filter(w => w.id !== editingWorkflowId));
+      setIsWorkflowModalOpen(false);
+      setNewWorkflow({ name: "", description: "", active: true });
+      setEditingWorkflowId(null);
+    }
   };
 
   const filteredEvents = eventTypes.filter(e => e.title.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -133,10 +171,48 @@ export default function Dashboard() {
         )}
 
         {activeTab === "workflows" && (
-          <div style={{ textAlign: "center", padding: "4rem", color: "var(--text-muted)", background: "var(--surface)", borderRadius: "var(--radius)", border: "1px solid var(--border)" }}>
-            <h3 style={{ fontSize: "1.25rem", marginBottom: "0.5rem", color: "var(--foreground)" }}>Automate your work</h3>
-            <p style={{ marginBottom: "1.5rem" }}>Save time with workflows. Automate emails, texts, and more.</p>
-            <button className="btn btn-outline">Explore Workflows</button>
+          <div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+              <h3 style={{ fontSize: "1.25rem", margin: 0 }}>Your Workflows</h3>
+              <button 
+                className="btn btn-primary"
+                onClick={() => {
+                  setEditingWorkflowId(null);
+                  setNewWorkflow({ name: "", description: "", active: true });
+                  setIsWorkflowModalOpen(true);
+                }}
+              >
+                + Create Workflow
+              </button>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1.5rem" }}>
+              {workflows.map(wf => (
+                <div key={wf.id} style={{ padding: "1.5rem", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--radius)", display: "flex", flexDirection: "column", gap: "1rem", transition: "all 0.2s ease" }}>
+                  <div>
+                    <h4 style={{ margin: "0 0 0.5rem 0", fontSize: "1.1rem", color: "var(--foreground)" }}>{wf.name}</h4>
+                    <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "0.9rem", lineHeight: "1.4" }}>{wf.description}</p>
+                  </div>
+                  <div style={{ marginTop: "auto", display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: "1rem", borderTop: "1px solid var(--border)" }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer" }}>
+                      <input 
+                        type="checkbox" 
+                        checked={wf.active} 
+                        onChange={() => setWorkflows(workflows.map(w => w.id === wf.id ? {...w, active: !w.active} : w))}
+                        style={{ width: "1.2rem", height: "1.2rem", accentColor: "var(--primary)", cursor: "pointer" }} 
+                      />
+                      <span style={{ fontSize: "0.9rem", fontWeight: 500, color: wf.active ? "var(--foreground)" : "var(--text-muted)" }}>{wf.active ? "Active" : "Inactive"}</span>
+                    </label>
+                    <button 
+                      className="btn btn-outline" 
+                      style={{ padding: "0.4rem 0.8rem", fontSize: "0.85rem", background: "var(--background)" }}
+                      onClick={() => openEditWorkflow(wf)}
+                    >
+                      Edit
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </main>
@@ -181,6 +257,56 @@ export default function Dashboard() {
               <div style={{ display: "flex", gap: "1rem", marginTop: "2rem", justifyContent: "flex-end" }}>
                 <button type="button" className="btn btn-outline" onClick={() => setIsModalOpen(false)}>Cancel</button>
                 <button type="submit" className="btn btn-primary">Create</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Workflow Modal */}
+      {isWorkflowModalOpen && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, bottom: 0, 
+          backgroundColor: "rgba(0,0,0,0.5)", display: "flex", 
+          alignItems: "center", justifyContent: "center", zIndex: 1000
+        }}>
+          <div style={{
+            background: "var(--background)", padding: "2rem", borderRadius: "var(--radius)",
+            width: "100%", maxWidth: "500px", border: "1px solid var(--border)"
+          }}>
+            <h2 style={{ marginBottom: "1.5rem" }}>{editingWorkflowId ? "Edit Workflow" : "Create Workflow"}</h2>
+            <form onSubmit={handleWorkflowSubmit}>
+              <div style={{ marginBottom: "1rem" }}>
+                <label style={{ display: "block", marginBottom: "0.5rem" }}>Workflow Name</label>
+                <input 
+                  required
+                  type="text" 
+                  value={newWorkflow.name}
+                  onChange={(e) => setNewWorkflow({...newWorkflow, name: e.target.value})}
+                  style={{ width: "100%", padding: "0.75rem", borderRadius: "var(--radius)", border: "1px solid var(--border)", background: "var(--surface)", color: "var(--foreground)" }}
+                  placeholder="e.g. Email reminder"
+                />
+              </div>
+              <div style={{ marginBottom: "1.5rem" }}>
+                <label style={{ display: "block", marginBottom: "0.5rem" }}>Description</label>
+                <textarea 
+                  required
+                  value={newWorkflow.description}
+                  onChange={(e) => setNewWorkflow({...newWorkflow, description: e.target.value})}
+                  style={{ width: "100%", padding: "0.75rem", borderRadius: "var(--radius)", border: "1px solid var(--border)", background: "var(--surface)", color: "var(--foreground)", minHeight: "80px", resize: "vertical" }}
+                  placeholder="What does this workflow do?"
+                />
+              </div>
+              <div style={{ display: "flex", gap: "1rem", marginTop: "2rem", justifyContent: "space-between" }}>
+                <div>
+                  {editingWorkflowId && (
+                    <button type="button" className="btn btn-outline" style={{ color: "#ef4444", borderColor: "#ef4444" }} onClick={handleDeleteWorkflow}>Delete</button>
+                  )}
+                </div>
+                <div style={{ display: "flex", gap: "1rem" }}>
+                  <button type="button" className="btn btn-outline" onClick={() => setIsWorkflowModalOpen(false)}>Cancel</button>
+                  <button type="submit" className="btn btn-primary">{editingWorkflowId ? "Save" : "Create"}</button>
+                </div>
               </div>
             </form>
           </div>
