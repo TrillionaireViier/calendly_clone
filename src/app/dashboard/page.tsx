@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 export default function Dashboard() {
@@ -36,7 +36,37 @@ export default function Dashboard() {
   });
 
   const [profile, setProfile] = useState({ name: "Danila Vier", username: "danyloviier" });
+  const [draftProfile, setDraftProfile] = useState({ name: "Danila Vier", username: "danyloviier" });
   const [saveSuccess, setSaveSuccess] = useState(false);
+
+  useEffect(() => {
+    const savedProfile = localStorage.getItem('calendly_profile');
+    if (savedProfile) {
+      try {
+        const p = JSON.parse(savedProfile);
+        setProfile(p);
+        setDraftProfile(p);
+      } catch (e) {}
+    }
+    const savedIntegrations = localStorage.getItem('calendly_integrations');
+    if (savedIntegrations) {
+      try {
+        setIntegrations(JSON.parse(savedIntegrations));
+      } catch (e) {}
+    }
+  }, []);
+
+  const handleSaveProfile = () => {
+    setProfile(draftProfile);
+    localStorage.setItem('calendly_profile', JSON.stringify(draftProfile));
+    setSaveSuccess(true);
+  };
+
+  const toggleIntegration = (tool: string) => {
+    const next = { ...integrations, [tool]: !integrations[tool] };
+    setIntegrations(next);
+    localStorage.setItem('calendly_integrations', JSON.stringify(next));
+  };
   const handleCreateEvent = (e: React.FormEvent) => {
     e.preventDefault();
     const id = newEvent.title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
@@ -122,7 +152,7 @@ export default function Dashboard() {
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1rem" }}>
                   <div style={{ width: "60px", height: "60px", borderRadius: "50%", background: "var(--primary)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem", fontWeight: "bold" }}>
-                    D
+                    {profile.name ? profile.name.charAt(0).toUpperCase() : "D"}
                   </div>
                   <div>
                     <h2 style={{ fontSize: "1.5rem", margin: 0 }}>{profile.name}</h2>
@@ -288,7 +318,7 @@ export default function Dashboard() {
                   <h4 style={{ margin: 0 }}>{tool}</h4>
                   <button 
                     className="btn btn-outline" 
-                    onClick={() => setIntegrations(prev => ({ ...prev, [tool]: !prev[tool] }))}
+                    onClick={() => toggleIntegration(tool)}
                     style={{ width: "100%", background: integrations[tool] ? "var(--primary)" : "var(--surface)", color: integrations[tool] ? "white" : "var(--foreground)", borderColor: integrations[tool] ? "var(--primary)" : "var(--border)" }}
                   >
                     {integrations[tool] ? "Connected" : "Connect"}
@@ -307,11 +337,11 @@ export default function Dashboard() {
                <div style={{ padding: "1.5rem", border: "1px solid var(--border)", borderRadius: "var(--radius)", background: "var(--background)" }}>
                  <h4 style={{ margin: "0 0 1rem 0", fontSize: "1.1rem" }}>Profile Information</h4>
                  <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
-                   <input type="text" value={profile.name} onChange={(e) => { setProfile({...profile, name: e.target.value}); setSaveSuccess(false); }} style={{ flex: 1, padding: "0.75rem", borderRadius: "var(--radius)", border: "1px solid var(--border)", background: "var(--surface)", color: "var(--foreground)" }} />
-                   <input type="text" value={profile.username} onChange={(e) => { setProfile({...profile, username: e.target.value}); setSaveSuccess(false); }} style={{ flex: 1, padding: "0.75rem", borderRadius: "var(--radius)", border: "1px solid var(--border)", background: "var(--surface)", color: "var(--foreground)" }} />
+                   <input type="text" value={draftProfile.name} onChange={(e) => { setDraftProfile({...draftProfile, name: e.target.value}); setSaveSuccess(false); }} style={{ flex: 1, padding: "0.75rem", borderRadius: "var(--radius)", border: "1px solid var(--border)", background: "var(--surface)", color: "var(--foreground)" }} />
+                   <input type="text" value={draftProfile.username} onChange={(e) => { setDraftProfile({...draftProfile, username: e.target.value}); setSaveSuccess(false); }} style={{ flex: 1, padding: "0.75rem", borderRadius: "var(--radius)", border: "1px solid var(--border)", background: "var(--surface)", color: "var(--foreground)" }} />
                  </div>
                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                   <button className="btn btn-primary" onClick={() => setSaveSuccess(true)}>Save Changes</button>
+                   <button className="btn btn-primary" onClick={handleSaveProfile}>Save Changes</button>
                    {saveSuccess && <span style={{ color: "#10b981", fontSize: "0.9rem" }}>Changes saved successfully!</span>}
                  </div>
                </div>
